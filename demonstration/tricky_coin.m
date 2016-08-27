@@ -7,14 +7,14 @@ x = 0:0.01:1;
 % Prior
 switch p
     case 1
-        % Uniform prior
-        prior = beta_pdf(x,1,1); % Uniform distribution
+        prior = beta_pdf(x,1,1); % Uniform prior
     case 2
-        prior = beta_pdf(x,2,3); % Weak prior around 0.25
+        prior = beta_pdf(x,2,2); % Prior around 0.5 
     case 3
-        prior = beta_pdf(x,300,100); % Strong prior around 0.5   
+        prior = beta_pdf(x,2,3); % Weak prior around 0.25
 end
-        
+prior = prior./sum(prior)        
+
 % Liklihood
 likelihood = binomial_pdf(x,65,100);
 
