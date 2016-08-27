@@ -30,7 +30,7 @@ bar(x,prior,'FaceColor','r','EdgeColor','none');
 alpha(al)
 xlim([0 1]);
 box off
-print('./figures/Figure1.eps','-depsc');
+purty_plot(101,['./figures/Figure1_' sprintf('%d',p)],'eps');
 
 figure(102)
 clf
@@ -40,18 +40,18 @@ bar(x,likelihood,'FaceColor','g','EdgeColor','none');
 alpha(al)
 xlim([0 1]);
 box off
-print('./figures/Figure2.eps','-depsc');
+purty_plot(102,['./figures/Figure2_' sprintf('%d',p)],'eps');
 
 
 figure(103);
 clf
-subplot(2,2,1)
+subplot(1,4,1)
 bar(x,prior,'FaceColor','r','EdgeColor','none');
 alpha(al)
 xlim([0 1]);
 box off
 
-subplot(2,2,2);
+subplot(1,4,2);
 hold on
 bar(x,prior,'FaceColor','r','EdgeColor','none');
 bar(x,likelihood,'FaceColor','g','EdgeColor','none');
@@ -59,7 +59,7 @@ alpha(al)
 xlim([0 1]);
 box off
 
-subplot(2,2,3:4);
+subplot(1,4,3:4);
 hold on
 bar(x,prior,'FaceColor','r','EdgeColor','none');
 bar(x,likelihood,'FaceColor','g','EdgeColor','none');
@@ -67,4 +67,4 @@ bar(x,posterior,'FaceColor','b','EdgeColor','none');
 alpha(al)
 xlim([0 1]);
 box off
-print('./figures/Figure2.eps','-depsc');
+purty_plot(103,['./figures/Figure3_' sprintf('%d',p)],'eps');

@@ -8,21 +8,21 @@ x = 0:0.01:1;
 switch p
     case 1
         % Uniform prior
-        prior = beta_distro(x,1,1); % Uniform distribution
+        prior = beta_pdf(x,1,1); % Uniform distribution
     case 2
-        prior = beta_distro(x,2,3); % Weak prior around 0.25
+        prior = beta_pdf(x,2,3); % Weak prior around 0.25
     case 3
-        prior = beta_distro(x,300,100); % Strong prior around 0.5   
+        prior = beta_pdf(x,300,100); % Strong prior around 0.5   
 end
         
 % Liklihood
-likelihood = binomial_distro(x,65,100);
+likelihood = binomial_pdf(x,65,100);
 
 % Posterior
 posterior = likelihood.*prior;
 posterior = posterior./sum(posterior);
 %% Plot
-al = 0.7
+al = 0.7;
 
 figure(101)
 clf
@@ -30,19 +30,28 @@ bar(x,prior,'FaceColor','r','EdgeColor','none');
 alpha(al)
 xlim([0 1]);
 box off
+purty_plot(['./figures/Figure1_' sprintf('%d',p) '.eps'],'e');
 
 figure(102)
+clf
+hold on
+bar(x,prior,'FaceColor','r','EdgeColor','none');
+bar(x,likelihood,'FaceColor','g','EdgeColor','none');
+alpha(al)
+xlim([0 1]);
+box off
+purty_plot(['./figures/Figure2_' sprintf('%d',p) '.eps'],'eps');
 
 
 figure(103);
 clf
-subplot(2,2,1)
+subplot(4,1,1)
 bar(x,prior,'FaceColor','r','EdgeColor','none');
 alpha(al)
 xlim([0 1]);
 box off
 
-subplot(2,2,2);
+subplot(4,1,2);
 hold on
 bar(x,prior,'FaceColor','r','EdgeColor','none');
 bar(x,likelihood,'FaceColor','g','EdgeColor','none');
@@ -50,7 +59,7 @@ alpha(al)
 xlim([0 1]);
 box off
 
-subplot(2,2,3:4);
+subplot(4,1,3:4);
 hold on
 bar(x,prior,'FaceColor','r','EdgeColor','none');
 bar(x,likelihood,'FaceColor','g','EdgeColor','none');
@@ -58,91 +67,4 @@ bar(x,posterior,'FaceColor','b','EdgeColor','none');
 alpha(al)
 xlim([0 1]);
 box off
-
-
-% function y = betabinopdf(k,n,a,b) % Directly from https://en.wikipedia.org/wiki/Beta-binomial_distribution
-%     y = exp(gammaln(n + 1)-gammaln(k + 1)-gammaln(n - k + 1)) .* beta((k + a),(n - k + b)) ./ beta(a,b);
-% end
-
-% 
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % Demonstration code for Bayes Rule: A Tutorial Introduction to Bayesian Analysis, JV Stone.
-% % Copyright: 2012, JV Stone, Psychology Department, Sheffield University, Sheffield, England.
-% % The MatLab code below is version 7.5. This code can be downloaded from http://jim-stone.staff.shef.ac.uk/BayesBook/Matlab.
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% %%%%%%%%%%%%%%%%%%%%%
-% % Matlab code for plotting probability of head/tail outcomes 
-% % as a function of bias b.
-% clear all;
-% % set random number seeds.
-% s=999; rand('seed',s); randn('seed',s);
-% 
-% % Make vector of possible bias values
-% inc = 0.001; % set resolution of distributions.
-% bmin = inc;
-% bmax = 1-inc;
-% b = bmin:inc:bmax;	% range of bias values p(head).
-% a = 1-b;          		% range of p(tails) values.
-% 
-% % make prior either uniform or binomial.
-% % set switch for uniform prior.
-% uprior=0;
-% if uprior     % Make uniform prior. 
-%     ht=1./(bmax-bmin);
-%     prior = ones(size(b)).*ht;
-% else  % Make prior=binomial
-%     C = nchoosek(4,2); % not really needed here.
-%     p = C.* b.^2 .* a.^2;
-%     prior = p/max(p);
-% end
-% 
-% 
-% % plot prior
-% figure(1);set(gca,'FontSize',20);
-% plot(b,prior,'k-','Linewidth',2); set(gca,'Linewidth',2);
-% xlabel('Coin bias, \theta'); ylabel('Prior, p(\theta)');
-% set(gca,'YLim',[0 1.1],'FontName','Ariel'); grid on;
-% 
-% ni=8; if uprior==0 ni=3; end % make graphs for figure 4.3.
-% NN = 2^ni; % max number of coin flips in loop below is NN.
-% flips = rand(NN,1); % get NN random numbers between zero and one.
-% x0 = flips<0.6; % get number of heads for a coin with bias 0.6.
-% % Cheat a bit as want to show distribution for specific outcomes.
-% x0(1)=1; x0(2)=0; x0(3)=1; x0(4)=1; fprintf('\n');
-% 
-% % find likelihood and posterior for different numbers N of coin flips.
-% for i=1:ni % step up number of coin flips in powers of 2.
-%     N=2^i; % get number of coin flips.
-%     x = x0(1:N); % get data for first N coin flips.
-%     k = sum(x); % get number of heads.
-%     % C = nchoosek(N,k); % binmial coefficient, not needed here.
-%     C = 1; % set binomial coefficient to one.
-%     nh = k; % nh = number of heads.
-%     nt = N-k; % nt = number of tails.
-%     % likelihood function = probability of nh heads and nt tails.
-%     lik = C.* b.^nh .* a.^nt; 
-%     lik = lik/max(lik); % scale likelihood to have max value of one
-%     % plot likelihood function.
-%     figure(2);set(gca,'FontSize',20);
-%     plot(b,lik,'k-','Linewidth',2); set(gca,'Linewidth',2);
-%     xlabel('Coin bias, \theta'); ylabel('Likelihood, p({\bfx}|\theta)');
-%     set(gca,'YLim',[0 1.1],'FontName','Ariel'); grid on;
-%     p = lik.*prior;           % find posterior = likelihood * prior
-%     maxp = max(p);             % find max value of p
-%     ind = find(maxp==p);     % find index of max value of p
-%     p = p/maxp;                   % make max value of p be one.
-%     best = b(ind);                 % find estimated bias, 
-%     % same as (number of heads)/(number of coin flips)
-%     % plot posterior
-%     figure(3); set(gca,'FontSize',20); plot(b,p,'k','Linewidth',2); 
-%     set(gca,'YLim',[0 1.1],'FontName','Ariel');
-%     xlabel('Coin bias, \theta'); 
-%     ylabel('Posterior, p({\theta|\bfx})'); set(gca,'Linewidth',2);
-%     ss=sprintf('Heads = %d/%d',k,N);
-%     text(0.1,0.9,ss,'FontSize',20); grid on;
-%     % print value of bias associated with max value of p
-%     fprintf('Number of heads = %d. Estimated bias = %.3f\n',k ,best);
-% end
-% %%%%%%%%%%%%%%%%%%%%%%
+purty_plot(['./figures/Figure1_' sprintf('%d',p) '.eps'],'eps');

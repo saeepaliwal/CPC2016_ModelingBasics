@@ -1,4 +1,4 @@
-function [P F] = mh_inversion(example)
+function [P F] = mh_inversion(fun)
 
 %% Initial data
 % Parameters
@@ -13,36 +13,44 @@ theta   = zeros(1,N);      % Samples drawn from the Markov chain (States)
 acc     = 0;               % Accepted samples
 
 sigma = 1;   
-proposal_PDF = @(x,mu) normpdf(x,mu,sigma);   
-sample_from_proposal_PDF = @(mu) normrnd(mu,sigma);
-p = @(x) ; 
-aa = -3;   bb = 3;       
+proposal_PDF = @(x) lognrnd(x,mu,sigma);   
+sample_from_proposal_PDF = @(mu) lognrnd(mu,sigma);
+p = @(x) log_joint(x,fun); 
+aa = -3;   
+bb = 3;       
 t = 0.5;    
 
-%% Define distributions
-
-switch example
-    case 1 % Beta-binomial case
-        sigma = 1;   
-        proposal_PDF = @(x,mu) normpdf(x,mu,sigma);  
-        sample_from_proposal_PDF = @(mu) normrnd(mu,sigma);
-        
-    case 2 % Gaussian-gaussian case
-        
-end
+% %% Define distributions
+% 
+% switch example
+%     case 1 % Beta-binomial case
+%         sigma = 1;   
+%         proposal_PDF = @(x,mu) normpdf(x,mu,sigma);  
+%         sample_from_proposal_PDF = @(mu) normrnd(mu,sigma);
+%         
+%     case 2 % Gaussian-gaussian case
+%         
+% end
         
 %% Metroplis-Hastings routine
-for i = 1:burnin    % First make the burn-in stage
-    [t] = MH_routine(t, p, proposal_PDF, sample_from_proposal_PDF);
-end
-for i = 1:N         % Cycle to the number of samples
-    for j = 1:lag   % Cycle to make the thinning
+
+for i = 1:N         
+    theta_star = sample_from_proposal_PDF(theta);
+        
+        
+        
+        
         [t a] = MH_routine(t, p, proposal_PDF, sample_from_proposal_PDF);
     end
     theta(i) = t;        % Samples accepted
     acc      = acc + a;  % Accepted ?
 end
 accrate = acc/N;     % Acceptance rate
+
+keyboard
+
+
+
 
 % Harmonic mean
 P = P(:,n:end);
@@ -80,21 +88,23 @@ ylabel('AC (last 100 samples)', 'FontSize', 12);
 xx = aa:0.01:bb;   % x-axis (Graphs)
 figure;
 
-% Histogram and target dist
-subplot(2,1,1);    
-[n1 x1] = hist(theta, ceil(sqrt(N))); 
-bar(x1, n1/(N*(x1(2)-x1(1))));   colormap summer;   hold on;  % Normalized histogram
-plot(xx, p(xx)/trapz(xx,p(xx)), 'r-', 'LineWidth', 2);        % Normalized "PDF"
-xlim([aa bb]); grid on; 
-title('Distribution of samples', 'FontSize', 15);
-ylabel('Probability density function', 'FontSize', 12);
-text(aa+3,0.8,sprintf('Acceptace rate = %g', accrate),'FontSize',12);
+% % Histogram and target dist
+% subplot(2,1,1);    
+% [n1 x1] = hist(theta, ceil(sqrt(N))); 
+% bar(x1, n1/(N*(x1(2)-x1(1))));   colormap summer;   hold on;  % Normalized histogram
+% plot(xx, p(xx)/trapz(xx,p(xx)), 'r-', 'LineWidth', 2);        % Normalized "PDF"
+% xlim([aa bb]); grid on; 
+% title('Distribution of samples', 'FontSize', 15);
+% ylabel('Probability density function', 'FontSize', 12);
+% text(aa+3,0.8,sprintf('Acceptace rate = %g', accrate),'FontSize',12);
+% 
+% % Samples
+% subplot(2,1,2);    
+% plot(theta, 1:N, 'b-');   xlim([aa bb]);  ylim([0 N]); grid on; 
+% xlabel('Location', 'FontSize', 12);
+% ylabel('Iterations, N', 'FontSize', 12); 
 
-% Samples
-subplot(2,1,2);    
-plot(theta, 1:N, 'b-');   xlim([aa bb]);  ylim([0 N]); grid on; 
-xlabel('Location', 'FontSize', 12);
-ylabel('Iterations, N', 'FontSize', 12); 
+
 
 function [t a prob] = MH_routine(theta,p,proposal_PDF,sample_from_proposal_PDF)
 % Metropolis-Hastings algorithm routine:
@@ -113,3 +123,23 @@ else
 end
 
 return;
+
+% function LJ = log_joint(x, fun)
+% 
+% % Prior
+% switch fun
+%     case 1
+%         % Uniform prior
+%         prior = beta_pdf(x,1,1); % Uniform distribution
+%     case 2
+%         prior = beta_pdf(x,2,3); % Weak prior around 0.25
+%     case 3
+%         prior = beta_pdf(x,300,100); % Strong prior around 0.5   
+% end
+%         
+% % Liklihood
+% likelihood = binomial_pdf(x,65,100);
+% 
+% % Posterior
+% LJ = likelihood.*prior;
+% LJ = log(LJ);
