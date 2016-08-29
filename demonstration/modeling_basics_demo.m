@@ -60,21 +60,43 @@ n = 100;
 k = 65; 
 
 % Simulate tricky coin:
-tricky_coin(n,k,p)
+% Uniform prior
+[Pr1 L1 Po1] = tricky_coin(n,k,1);
+
+% 0.5 prior
+[Pr2 L2 Po2] = tricky_coin(n,k,2);
+
+% 0.2 prior
+[Pr3 L3 Po3] = tricky_coin(n,k,3);
 
 %% Step 6: Model inversion
-% Say we observe 32 heads out of 100 tosses
+% Say we observe 45 heads out of 100 tosses
 n = 100;
-k = 32;
+k = 45;
 
 % Invert for uniform prior
-[P1 F1] = mh_inversion(1);
+[P1 F1] = mh_inversion(1,n,k);
 
 % Invert for tight prior around 0.5
-[P2 F2] = mh_inversion(2)
+[P2 F2] = mh_inversion(2,n,k);
 
 % Invert for weak prior around 0.3
-[P3 F3] = mh_inversion(3)
+[P3 F3] = mh_inversion(3,n,k);
+
+%%
+al = 0.6;
+figure(104)
+subplot(1,3,1);
+hist(P1,50,'EdgeColor','none');
+alpha(al);
+subplot(1,3,2);
+hist(P2,50,'EdgeColor','none');
+alpha(al);
+subplot(1,3,3);
+hist(P3,50,'EdgeColor','none');
+alpha(al);
+purty_plot(104,['./figures/Figure_MH_Samples'],'eps');
+
 
 %% Step 7: Model comparison
 figure(104)

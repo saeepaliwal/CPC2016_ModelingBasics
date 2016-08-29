@@ -1,4 +1,4 @@
-function [P F] = mh_inversion(fun)
+function [P F] = mh_inversion(fun,n,k)
 
 %% Initial data
 % Parameters
@@ -21,7 +21,7 @@ t = 0.5;
 sig = 0.1;
 proposal_PDF = @(x,mu) normpdf(x,mu,sig); 
 sample_from_proposal_PDF = @(mu) normrnd(mu,sig);
-p = @(x) log_joint(x,fun);
+p = @(x) log_joint(x,fun,n,k);
 
 %% Metropolis Hastings
 for i = 1:burnin    % Burn-in stage (this gets us closer to the acceptable region)
@@ -95,7 +95,7 @@ end
 
 return;
 
-function LJ = log_joint(x, fun)
+function LJ = log_joint(x, fun,n,k)
 
 % Prior
 switch fun
@@ -104,11 +104,11 @@ switch fun
     case 2
         prior = beta_pdf(x,2,2); % Prior around 0.5 
     case 3
-        prior = beta_pdf(x,2,3); % Weak prior around 0.25 
+        prior = beta_pdf(x,2,5); % Weak prior around 0.25 
 end
 
 % Liklihood
-likelihood = binomial_pdf(x,65,100);
+likelihood = binomial_pdf(x,k,n);
 
 % Posterior
 LJ = prior.*likelihood;
